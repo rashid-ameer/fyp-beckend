@@ -88,7 +88,6 @@ function updateBatch(req,res){
     },{
         where:{
          id:req.body.id,
-        // is_deleted:0
         }
     }).then(result=>{
         res.status(200).json(result);

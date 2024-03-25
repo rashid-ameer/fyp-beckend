@@ -1,25 +1,31 @@
 "use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("supervisor_committees", {
+    await queryInterface.createTable("committees", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      committee_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "committees",
-          key: "id",
-        },
-      },
       supervisor_id: {
         type: Sequelize.INTEGER,
+        allowNull: false, // Ensure supervisor_id is not null
         references: {
           model: "supervisors",
           key: "id",
+          onUpdate: "CASCADE", // Optional: Cascade updates to supervisor_id
+          onDelete: "CASCADE", // Optional: Cascade deletes to supervisor_id
+        },
+      },
+      batch_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false, // Ensure batch_id is not null
+        references: {
+          model: "batches",
+          key: "id",
+          onUpdate: "CASCADE", // Optional: Cascade updates to batch_id
+          onDelete: "CASCADE", // Optional: Cascade deletes to batch_id
         },
       },
       deleted_at: {
@@ -39,6 +45,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("supervisor_committees");
+    await queryInterface.dropTable("committees");
   },
 };

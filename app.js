@@ -19,6 +19,8 @@ const groupSubmittedFileRouter = require("./Router/Group_submittedFiles");
 const attendanceRouter = require("./Router/Attendance");
 const meetingRouter = require("./Router/Meeting");
 const committeeRouter = require("./Router/Committee");
+const ploRouter = require("./Router/Plo");
+
 const app = express();
 const cors = require("cors");
 global.__basedir = __dirname;
@@ -43,5 +45,6 @@ app.use("/saveGroupFiles", groupSubmittedFileRouter);
 app.use("/Meeting", meetingRouter);
 app.use("/Attendance", attendanceRouter);
 app.use("/Committee", committeeRouter);
+app.use("/Plo", ploRouter);
 
 module.exports = app;

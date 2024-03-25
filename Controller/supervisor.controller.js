@@ -1,6 +1,6 @@
 const models = require("../models");
 const batch = require("../models/batch");
-
+const { Op } = require("sequelize");
 function saveSupervisor(req, res) {
   const supervisor = {
     id: "",
@@ -15,9 +15,7 @@ function saveSupervisor(req, res) {
     email: req.body.email,
     password: req.body.password,
     phoneNumber: req.body.phoneNumber,
-    imgUrl: req.file
-      ? "http://localhost:8080/File/getImage/" + req.file.filename
-      : null,
+    imgUrl: req.file ? "http://localhost:8080/File/getImage/" + req.file.filename : null,
     isActive: req.body.isActive,
     is_varified: req.body.is_varified,
     department_id: req.body.department_id,
@@ -146,9 +144,7 @@ function updateSupervisor(req, res) {
           email: req.body.email,
           phoneNumber: req.body.phoneNumber,
           password: req.body.password,
-          imgUrl: req.file
-            ? "http://localhost:8080/File/getImage/" + req.file.filename
-            : null,
+          imgUrl: req.file ? "http://localhost:8080/File/getImage/" + req.file.filename : null,
           isActive: req.body.isActive,
           is_varified: req.body.is_varified,
           role_id: req.body.role_id,
@@ -205,6 +201,69 @@ function deleteSupervisor(req, res) {
     });
 }
 
+async function getAvailableSupervisorsForCommittee(req, res) {
+  const batch_id = req.params.id;
+
+  console.log("batch id", batch_id);
+  try {
+    // Fetch committee IDs associated with the batch ID
+    const committees = await models.committee.findAll({
+      attributes: ["id"],
+      where: {
+        batch_id,
+      },
+    });
+
+    // Extract committee IDs from the result
+    const committeeIds = committees.map((committee) => committee.id);
+
+    // Fetch supervisors associated with the retrieved committee IDs
+    const supervisorsWithCommittee = await models.supervisor_committee.findAll({
+      attributes: ["supervisor_id"], // Assuming you only want supervisor IDs
+      where: {
+        committee_id: committeeIds,
+      },
+      raw: true,
+    });
+
+    // Extract supervisor IDs associated with committees
+    const supervisorIdsWithCommittee = supervisorsWithCommittee.map((supervisor) => supervisor.supervisor_id);
+
+    // Fetch supervisors that are not associated with the retrieved committee IDs
+    const availableSupervisors = await models.supervisor.findAll({
+      where: {
+        id: { [Op.notIn]: supervisorIdsWithCommittee }, // Exclude supervisors with committee IDs
+      },
+      include: [
+        {
+          model: models.user, // Include the User model
+          attributes: ["id", "name"], // Specify which user attributes to include
+        },
+      ],
+      raw: true,
+    });
+    // Adjust the structure of the returned data
+    const formattedSupervisors = availableSupervisors.map((supervisor) => ({
+      ...supervisor,
+      user: {
+        id: supervisor["user.id"],
+        name: supervisor["user.name"],
+      },
+    }));
+
+    // Remove user-related attributes from the supervisor object
+    formattedSupervisors.forEach((supervisor) => {
+      delete supervisor["user.id"];
+      delete supervisor["user.name"];
+    });
+
+    res.status(200).json(formattedSupervisors);
+  } catch (error) {
+    console.error("Error fetching supervisors without committee:", error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
 module.exports = {
   saveSupervisor,
   showAllSupervisorsInDepartment,
@@ -212,4 +271,5 @@ module.exports = {
   showSupervisorByINS,
   updateSupervisor,
   deleteSupervisor,
+  getAvailableSupervisorsForCommittee,
 };

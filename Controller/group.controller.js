@@ -56,6 +56,43 @@ function showGroupsByBatch(req, res) {
     });
 }
 
+function showGroupsByBatchWithoutCommittee(req, res) {
+  models.group
+    .findAll({
+      include: [
+        {
+          model: models.student,
+          include: [
+            {
+              model: models.user,
+              where: {
+                is_deleted: 0,
+              },
+              required: false,
+            },
+          ],
+          where: {
+            batch_id: req.body.batch_id,
+          },
+          required: false,
+        },
+      ],
+      where: {
+        is_deleted: 0,
+        committee_id: null,
+      },
+    })
+    .then((result) => {
+      result = result?.filter((group) => group.students.length > 1) || null;
+      res.status(200).json(result);
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "error occurred",
+      });
+    });
+}
+
 function showAllGroups(req, res) {
   models.group
     .findAll({
@@ -189,7 +226,6 @@ function showGroupById(req, res) {
     });
 }
 
-
 function showGroupAttendanceById(req, res) {
   models.group
     .findAll({
@@ -267,33 +303,6 @@ function addSupervisor(req, res) {
     });
 }
 
-// function deleteStudent(req, res) {
-//     models.student.update({
-//        is_deleted:1
-//     },{
-//         where: {
-//             id:req.body.id,
-//             user_id: req.body.user_name,
-//             is_deleted: 0
-//         }
-//     }).then(result => {
-//         res.status(200).json(result);
-//         models.user.update({
-//             is_deleted:1
-//         },{
-//             where:{
-//             id:req.body.id,
-//              user_name:req.body.user_name,
-//              is_deleted:0
-//             }
-//         })
-//     }).catch(error => {
-//         res.status(500).json({
-//             message: "error occurred"
-//         })
-//     })
-// }
-
 module.exports = {
   saveGroup,
   showGroupById,
@@ -305,5 +314,6 @@ module.exports = {
   addSupervisor,
   showAllGroupsUnderSupervisions,
   showAllGroupsUnderSupervisionsByBatch,
-  showGroupAttendanceById
+  showGroupAttendanceById,
+  showGroupsByBatchWithoutCommittee,
 };

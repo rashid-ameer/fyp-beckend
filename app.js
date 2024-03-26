@@ -20,6 +20,7 @@ const attendanceRouter = require("./Router/Attendance");
 const meetingRouter = require("./Router/Meeting");
 const committeeRouter = require("./Router/Committee");
 const ploRouter = require("./Router/Plo");
+const rubricTypeRouter = require("./Router/RubricType");
 
 const app = express();
 const cors = require("cors");
@@ -46,5 +47,6 @@ app.use("/Meeting", meetingRouter);
 app.use("/Attendance", attendanceRouter);
 app.use("/Committee", committeeRouter);
 app.use("/Plo", ploRouter);
+app.use("/RubricType", rubricTypeRouter);
 
 module.exports = app;

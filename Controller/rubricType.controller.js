@@ -6,7 +6,7 @@ async function addRubricType(req, res) {
     const { rubric_type } = req.body;
 
     // adding rubric type to database
-    const newRubrictype = model.rubric_type.create({ rubric_type, is_deleted: 0 });
+    const newRubrictype = await model.rubric_type.create({ rubric_type, is_deleted: 0 });
 
     res.status(201).json(newRubrictype); //Send back the rubric type
   } catch (error) {

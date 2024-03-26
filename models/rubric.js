@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class rubric extends Model {
     /**
@@ -12,16 +10,19 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
     }
-  };
-  rubric.init({
-    criteria: DataTypes.STRING,
-    rubric_type_id: DataTypes.INTEGER,
-    PLO_id: DataTypes.INTEGER,
-    deleted_at: DataTypes.DATE,
-    is_deleted: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'rubric',
-  });
+  }
+  rubric.init(
+    {
+      criteria: DataTypes.STRING,
+      rubric_type_id: DataTypes.INTEGER,
+      PLO_id: DataTypes.INTEGER,
+      deleted_at: DataTypes.DATE,
+      is_deleted: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: "rubric",
+    }
+  );
   return rubric;
 };
